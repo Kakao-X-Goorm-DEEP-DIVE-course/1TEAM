@@ -37,7 +37,7 @@ dependencies {
 	implementation 'com.squareup.okhttp3:okhttp:4.9.1'
 	implementation 'org.springframework.boot:spring-boot-starter-websocket'
 	implementation 'org.json:json:20231013'
-
+	implementation 'org.springframework.kafka:spring-kafka'
 }
 
 tasks.named('test') {
