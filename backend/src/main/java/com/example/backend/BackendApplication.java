@@ -7,8 +7,7 @@ import org.springframework.kafka.annotation.EnableKafka;
 
 @EnableKafka // Kafka 활성화
 @SpringBootApplication
-@EnableJpaRepositories(basePackages = "com.example.backend.repository.jpa")
-@EnableRedisRepositories(basePackages = "com.example.backend.repository.redis")
+@EnableJpaRepositories(basePackages = "com.example.backend.repository")
 public class BackendApplication {
 
     public static void main(String[] args) {
