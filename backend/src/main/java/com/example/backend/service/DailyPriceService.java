@@ -43,8 +43,8 @@ public class DailyPriceService {
     @Value("${kis.api.baseUrl}")
     private String baseUrl;
 
-    @Value("${kis.api.accessToken}")
-    private String token;
+    //@Value("${kis.api.accessToken}")
+    //private String token;
 
     private final String DAILY_PATH = "/uapi/domestic-stock/v1/quotations/inquire-daily-price";
 
@@ -52,7 +52,7 @@ public class DailyPriceService {
         this.restTemplate = restTemplate;
     }
 
-    public List<DailyPriceDTO> postDailyPrice(String stockCode) throws Exception {
+    public List<DailyPriceDTO> postDailyPrice(String stockCode, String token) throws Exception {
         String url = baseUrl + DAILY_PATH;
 
         // HTTP Header 설정

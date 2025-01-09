@@ -15,6 +15,6 @@ public class TokenController {
     
     @GetMapping("/token")
     public String getToken() throws Exception {
-        return kisTokenService.getAccessToken();
+        return kisTokenService.getCachedAccessToken();
     }
 }

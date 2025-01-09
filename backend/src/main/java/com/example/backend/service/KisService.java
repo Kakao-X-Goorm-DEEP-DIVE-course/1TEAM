@@ -19,12 +19,16 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
+import com.example.backend.service.KisTokenService;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
+//@Slf4j
 @Service
 public class KisService {
     @Value("${kis.api.appKey}")
@@ -33,8 +37,8 @@ public class KisService {
     @Value("${kis.api.appSecret}")
     private String appSecret;
 
-    @Value("${kis.api.accessToken}")
-    private String accessToken;
+    //@Value("${kis.api.accessToken}")
+    //private String accessToken;
 
     private final WebClient webClient;
     private final ObjectMapper objectMapper;
@@ -53,7 +57,7 @@ public class KisService {
         this.webClient = webClientBuilder.baseUrl("https://openapi.koreainvestment.com:9443").build();
         this.objectMapper =objectMapper;
     }
-    private HttpHeaders createVolumeRankHttpHeaders() {
+    private HttpHeaders createVolumeRankHttpHeaders(String accessToken) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setBearerAuth(accessToken);
@@ -99,8 +103,8 @@ public class KisService {
             return Mono.error(e);
         }
     }
-    public Mono<List<ResponseOutputDTO>> getVolumeRank() {
-        HttpHeaders headers = createVolumeRankHttpHeaders();
+    public Mono<List<ResponseOutputDTO>> getVolumeRank(String accessToken) {
+        HttpHeaders headers = createVolumeRankHttpHeaders(accessToken);
 
         return webClient.get()
                 .uri(uriBuilder -> uriBuilder.path("/uapi/domestic-stock/v1/quotations/volume-rank")
@@ -123,22 +127,30 @@ public class KisService {
 
     }
 
+    @Autowired
+    private KisTokenService kisTokenService;
+
     @Scheduled(fixedRate = 10000)
     public void fetchVolumeRankPeriodically() {
-
-        getVolumeRank().subscribe(response -> {
-            response.forEach(dto -> {
-                try {
-                    String json = objectMapper.writeValueAsString(dto);
-                    kafkaProducerService.sendMessage("volume-rank-topic", json);
-                } catch (Exception e) {
-                    System.err.println("Error serializing data: " + e.getMessage());
-                }
-            });
-        }, error -> {
-            System.err.println("Error fetching volume rank: " + error.getMessage());
-        });
+        try {
+            String accessToken = kisTokenService.getCachedAccessToken();
+            getVolumeRank(accessToken).subscribe(response -> {
+              response.forEach(dto -> {
+                  try {
+                      String json = objectMapper.writeValueAsString(dto);
+                      kafkaProducerService.sendMessage("volume-rank-topic", json);
+                  } catch (Exception e) {
+                      System.err.println("Error serializing data: " + e.getMessage());
+                  }
+              });
+          }, error -> {
+              System.err.println("Error fetching volume rank: " + error.getMessage());
+          });
+        } catch (Exception e) {
+            System.err.println("Error getting access token: " + e.getMessage());
+        }
     }
+
 
     public List<RankingDTO> getPopular10() {
         List<RankingDTO> rankingDTOList = new ArrayList<>();
@@ -178,5 +190,6 @@ public class KisService {
         }
         return dataList;
     }
+
 
 }
