@@ -22,7 +22,7 @@ const SearchResultPage = () => {
     const fetchStockIds = async () => {
       try {
         const response = await fetch(
-          `http://localhost:8080/stocks/search/${query}`
+          `https://${process.env.REACT_APP_STOCK_BACKEND_URL}/stocks/search/${query}`
         );
         if (!response.ok) {
           throw new Error('Stock ID 검색 실패');
@@ -32,7 +32,7 @@ const SearchResultPage = () => {
 
         console.log(JSON.stringify(stockIds));
         // Backend로 subscriptionList 전달
-        await fetch('http://localhost:8080/subscriptions/update', {
+        await fetch('https://${process.env.REACT_APP_STOCK_BACKEND_URL}/subscriptions/update', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(stockIds),
@@ -40,12 +40,12 @@ const SearchResultPage = () => {
 
         const stockDataPromises = stockIds.map(async (stockId) => {
           // 각 stockId에 대한 POST 및 GET 처리
-          await fetch(`http://localhost:8080/api/daily-price/${stockId}`, {
+          await fetch(`https://${process.env.REACT_APP_STOCK_BACKEND_URL}/api/daily-price/${stockId}`, {
             method: 'POST',
           });
 
           const dailyResponse = await fetch(
-            `http://localhost:8080/api/daily-price/${stockId}`
+            `https://${process.env.REACT_APP_STOCK_BACKEND_URL}/api/daily-price/${stockId}`
           );
           if (!dailyResponse.ok) {
             throw new Error(`Daily 데이터 검색 실패 for stockId: ${stockId}`);
@@ -110,7 +110,7 @@ const SearchResultPage = () => {
   const fetchRedisFallback = async (stockId) => {
     try {
       const response = await fetch(
-        `http://localhost:8080/api/redis-data/${stockId}`
+        `https://${process.env.REACT_APP_STOCK_BACKEND_URL}/api/redis-data/${stockId}`
       );
       if (!response.ok) {
         throw new Error(`Redis 데이터 검색 실패 for stockId: ${stockId}`);
@@ -122,7 +122,7 @@ const SearchResultPage = () => {
       }
       return null;
     } catch (error) {
-      console.error(sderror);
+      console.error(error);
       return null;
     }
   };
