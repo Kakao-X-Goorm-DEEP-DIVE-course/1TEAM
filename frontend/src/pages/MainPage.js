@@ -19,7 +19,7 @@ const MainPage = () => {
   const fetchRedisFallback = async (stockId) => {
     try {
       const response = await fetch(
-        `https://${process.env.REACT_APP_STOCK_BACKEND_URL}/api/redis-data/${stockId}`
+        `http://${process.env.REACT_APP_STOCK_BACKEND_URL}/api/redis-data/${stockId}`
       );
       if (!response.ok) {
         throw new Error(`Redis 데이터 검색 실패 for stockId: ${stockId}`);
@@ -39,7 +39,7 @@ const MainPage = () => {
     const fetchStockIds = async () => {
       try {
         const response = await fetch(
-          `https://${process.env.REACT_APP_STOCK_BACKEND_URL}/get-rankings-daily`,
+          `http://${process.env.REACT_APP_STOCK_BACKEND_URL}/get-rankings-daily`,
           {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -55,7 +55,7 @@ const MainPage = () => {
 
         console.log(JSON.stringify(stockIds));
         // Backend로 subscriptionList 전달
-        await fetch(`https://${process.env.REACT_APP_STOCK_BACKEND_URL}/subscriptions/update`, {
+        await fetch(`http://${process.env.REACT_APP_STOCK_BACKEND_URL}/subscriptions/update`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(stockIds),
@@ -68,12 +68,12 @@ const MainPage = () => {
           }
 
           // 각 stockId에 대한 POST 및 GET 처리
-          await fetch(`https://${process.env.REACT_APP_STOCK_BACKEND_URL}/api/daily-price/${stockId}`, {
+          await fetch(`http://${process.env.REACT_APP_STOCK_BACKEND_URL}/api/daily-price/${stockId}`, {
             method: 'POST',
           });
 
           const dailyResponse = await fetch(
-            `https://${process.env.REACT_APP_STOCK_BACKEND_URL}/api/daily-price/${stockId}`
+            `http://${process.env.REACT_APP_STOCK_BACKEND_URL}/api/daily-price/${stockId}`
           );
           if (!dailyResponse.ok) {
             throw new Error(`Daily 데이터 검색 실패 for stockId: ${stockId}`);
@@ -104,7 +104,7 @@ const MainPage = () => {
 
   // WebSocket 연결
   useEffect(() => {
-    const socket = new WebSocket(`wss://${process.env.REACT_APP_STOCK_BACKEND_URL}/ws/stock`);
+    const socket = new WebSocket(`ws://${process.env.REACT_APP_STOCK_BACKEND_URL}/ws/stock`);
 
     socket.onmessage = (event) => {
       const data = JSON.parse(event.data);

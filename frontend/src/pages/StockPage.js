@@ -26,7 +26,7 @@ const StockPage = () => {
     const fetchInitialData = async (stockId) => {
       try {
         const response = await fetch(
-          `https://${process.env.REACT_APP_STOCK_BACKEND_URL}/api/redis-data/${stockId}`
+          `http://${process.env.REACT_APP_STOCK_BACKEND_URL}/api/redis-data/${stockId}`
         );
         const data = await response.json();
 
@@ -95,7 +95,7 @@ const StockPage = () => {
       try {
         // 실제 API 호출 코드
         const response = await fetch(
-          `https://${process.env.REACT_APP_STOCK_BACKEND_URL}/api/daily-price/${stockId}`
+          `http://${process.env.REACT_APP_STOCK_BACKEND_URL}/api/daily-price/${stockId}`
         );
         const data = await response.json();
         setDailyData(data);
